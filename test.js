@@ -1,9 +1,13 @@
-function openTab(evt, tabId) {
+function showTab(tabId) {
   document.querySelectorAll('.tabcontent').forEach(function (el) { el.classList.add('hidden'); });
-  document.querySelectorAll('.tablinks').forEach(function (btn) { btn.classList.remove('active'); });
+  document.querySelectorAll('.tablinks').forEach(function (btn) {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
   document.getElementById(tabId).classList.remove('hidden');
-  evt.currentTarget.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function openTab(evt, tabId) { showTab(tabId); }
 
 function $(id) { return document.getElementById(id); }
 function val(id) { return $(id).value.trim(); }
@@ -65,7 +69,7 @@ document.querySelectorAll('#resume-form input, #resume-form textarea').forEach(f
 });
 
 $('download-btn').addEventListener('click', function () {
-  var name = val('f-name') || 'resume';
+  const name = val('f-name') || 'resume';
   html2pdf().set({
     margin: 10,
     filename: name.replace(/\s+/g, '_') + '.pdf',
