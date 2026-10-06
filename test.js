@@ -79,4 +79,58 @@ $('download-btn').addEventListener('click', function () {
   }).from($('resume-paper')).save();
 });
 
+(function() {
+  var skillsArray = []; // Тут храним добавленные навыки
+  var input = $('f-skills-input');
+  var wrapper = $('chips-wrapper');
+  var hiddenInput = $('f-skills');
+
+  if (!input || !wrapper || !hiddenInput) return;
+
+  // Функция обновления скрытого инпута и запуска твоего рендеринга
+  function updateSkills() {
+    hiddenInput.value = skillsArray.join(', '); // Склеиваем через запятую для твоего renderResume
+    renderResume(); // Твоя родная функция перерисовки превью
+  }
+
+  // Функция создания визуального чипса
+  function renderChips() {
+    wrapper.innerHTML = '';
+    skillsArray.forEach(function(skill, index) {
+      var chip = document.createElement('span');
+      // Красивые стили (используем Tailwind, как в твоем проекте)
+      chip.className = 'inline-flex items-center text-sm bg-black/10 text-black/80 px-2.5 py-1 rounded-md';
+      chip.innerHTML = escapeHtml(skill) + 
+        '<button type="button" class="ml-1.5 text-black/80 hover:text-black/100 font-bold focus:outline-none" data-index="' + index + '">&times;</button>';
+      wrapper.appendChild(chip);
+    });
+    updateSkills();
+  }
+
+  // Слушаем нажатие клавиш в поле ввода
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Запрещаем отправку формы по Enter
+      var value = input.value.trim();
+      
+      // Если не пусто и такого навыка еще нет — добавляем
+      if (value && !skillsArray.includes(value)) {
+        skillsArray.push(value);
+        input.value = ''; // Очищаем поле ввода
+        renderChips(); // Перерисовываем чипсы
+      }
+    }
+  });
+
+  // Удаление чипса при клике на крестик
+  wrapper.addEventListener('click', function(e) {
+    if (e.target.tagName === 'BUTTON') {
+      var index = parseInt(e.target.getAttribute('data-index'), 10);
+      skillsArray.splice(index, 1); // Удаляем из массива
+      renderChips(); // Перерисовываем
+    }
+  });
+})();
+
+
 renderResume();

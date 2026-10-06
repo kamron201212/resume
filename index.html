@@ -117,10 +117,21 @@
             </div>
 
             <!-- Навыки -->
-            <div class="fbox">
-              <h2 class="ftitle">Навыки</h2>
-              <input id="f-skills" type="text" placeholder="Навыки (через запятую)" class="inp">
-            </div>
+            <!-- Контейнер для красивого отображения чипсов -->
+              <div class="fbox">
+                <h2 class="ftitle">Навыки</h2>
+                <!-- flex и gap-2 добавлены контейнеру, чтобы чипсы и инпут стояли в ряд -->
+                <div id="skills-container" class="inp flex flex-wrap items-center gap-2 h-auto min-h-[40px] py-[6px]">
+                  <div id="chips-wrapper" class="flex flex-wrap gap-2"></div>
+                  <input type="text" id="f-skills-input" placeholder="Введите навык и нажмите Enter"class="outline-none flex-1 min-w-[150px] bg-transparent">
+                </div>
+                <!-- Скрытый инпут для совместимости с функцией renderResume -->
+                <input type="hidden" id="f-skills">
+              </div>
+
+            <!-- Скрытое поле, чтобы не ломать твой старый код рендеринга -->
+            <input type="hidden" id="f-skills">
+
             <button type="button" id="to-preview-btn" onclick="showTab('tab-preview')"
               class="w-full rounded-2xl bg-black/90 px-8 py-3.5 text-lg font-semibold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200">
               Посмотреть превью
