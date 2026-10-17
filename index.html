@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <style type="text/tailwindcss">
+  
     @layer components {
       .tablinks { @apply flex-1 bg-inherit border-none outline-none cursor-pointer py-3.5 px-4 transition-all duration-300 hover:bg-gray-200; }
       .tablinks.active { @apply bg-gray-300; }
@@ -29,7 +30,56 @@
     .dd > div { overflow: hidden; min-height: 0; }
     @keyframes mpIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
     .mp-pop { animation: mpIn .15s ease-out; }
+
+        :root, #resume-paper {
+      --c-white: 255 255 255; --c-black: 0 0 0;
+      --g-50: 249 250 251; --g-100: 243 244 246; --g-200: 229 231 235; --g-300: 209 213 219; --g-400: 156 163 175;
+      --g-500: 107 114 128; --g-600: 75 85 99; --g-700: 55 65 81; --g-800: 31 41 55; --g-900: 17 24 39;
+    }
+    html.dark {
+      color-scheme: dark;
+      --c-white: 24 24 27; --c-black: 244 244 245;
+      --g-50: 39 39 42; --g-100: 39 39 42; --g-200: 63 63 70; --g-300: 82 82 91; --g-400: 113 113 122;
+      --g-500: 161 161 170; --g-600: 212 212 216; --g-700: 228 228 231; --g-800: 161 161 170; --g-900: 250 250 250;
+    }
+    #crop-frame { --c-black: 0 0 0; }
+    html.dark .modal { background-color: rgba(0, 0, 0, .6); }
+    body { background: rgb(var(--c-white)); color: rgb(var(--c-black)); }
+
   </style>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              white: 'rgb(var(--c-white) / <alpha-value>)',
+              black: 'rgb(var(--c-black) / <alpha-value>)',
+              gray: {
+                50: 'rgb(var(--g-50) / <alpha-value>)',
+                100: 'rgb(var(--g-100) / <alpha-value>)',
+                200: 'rgb(var(--g-200) / <alpha-value>)',
+                300: 'rgb(var(--g-300) / <alpha-value>)',
+                400: 'rgb(var(--g-400) / <alpha-value>)',
+                500: 'rgb(var(--g-500) / <alpha-value>)',
+                600: 'rgb(var(--g-600) / <alpha-value>)',
+                700: 'rgb(var(--g-700) / <alpha-value>)',
+                800: 'rgb(var(--g-800) / <alpha-value>)',
+                900: 'rgb(var(--g-900) / <alpha-value>)'
+              }
+            }
+          }
+        }
+      };
+      // тема применяется сразу, до отрисовки, чтобы страница не мигала
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) { }
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.classList.toggle('dark', t === 'dark');
+      })();
+    </script>
 
 </head>
 
@@ -38,13 +88,25 @@
     class="flex min-h-screen w-full items-start justify-center font-sans antialiased bg-white px-4 pt-[max(2.5rem,env(safe-area-inset-top,0px))] pb-[max(2.5rem,env(safe-area-inset-bottom,0px))]">
     <div class="w-full max-w-3xl flex flex-col gap-6">
 
-      <!-- ТАБЫ -->
-      <div class="flex overflow-hidden rounded-xl border border-gray-300 bg-white">
-        <button type="button" class="tablinks active" data-tab="tab-form"
-          onclick="openTab(event, 'tab-form')">Форма</button>
-        <button type="button" class="tablinks" data-tab="tab-preview"
-          onclick="openTab(event, 'tab-preview')">Превью</button>
-      </div>
+    <!-- ТАБЫ -->
+    <div class="flex overflow-hidden rounded-xl border border-gray-300 bg-white">
+      <button type="button" class="tablinks active" data-tab="tab-form" onclick="openTab(event, 'tab-form')">Форма</button>
+      <button type="button" class="tablinks" data-tab="tab-preview" onclick="openTab(event, 'tab-preview')">Превью</button>
+      <button type="button" id="theme-btn" aria-label="Сменить тему"
+        class="flex items-center justify-center border-l border-gray-300 px-4 hover:bg-gray-200 transition">
+        <svg class="dark:hidden w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke-width="1.8" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+        </svg>
+        <svg class="hidden dark:block w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke-width="1.8" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+        </svg>
+      </button>
+    </div>
+
 
       <!-- ВКЛАДКА: ФОРМА -->
       <div id="tab-form" class="tabcontent">
@@ -244,7 +306,8 @@
         </div>
       </div>
 
-      <input id="f-edu-school" type="text" placeholder="Учебное заведение" class="inp">
+      <input id="f-edu-school" type="text" placeholder="Учебное заведение *" class="inp">
+      <p id="f-edu-school-err" class="hidden -mt-1 text-xs text-red-600">Укажите название учебного заведения</p>
       <input id="f-edu-degree" type="text" placeholder="Специальность / степень" class="inp">
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -277,7 +340,8 @@
     <div class="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl space-y-3">
       <h3 class="text-2xl font-bold">Опыт работы</h3>
   
-      <input id="f-job-title" type="text" placeholder="Должность" class="inp">
+      <input id="f-job-title" type="text" placeholder="Должность *" class="inp">
+      <p id="f-job-title-err" class="hidden -mt-1 text-xs text-red-600">Укажите должность</p>
       <input id="f-job-company" type="text" placeholder="Компания" class="inp">
   
         <div class="grid grid-cols-2 gap-3">

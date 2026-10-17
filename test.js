@@ -197,7 +197,6 @@ function syncEnd(p) {
   });
 });
 
-// ===== Аватар: сначала окно обрезки, потом сохранение =====
 // ===== Аватар: клик по фото сразу открывает редактирование =====
 var avatarData = '';
 var avatarSource = null; // исходное фото и положение рамки — чтобы править без повторной загрузки
@@ -412,6 +411,7 @@ function openEduModal(index) {
   var e = index === null ? {} : eduList[index];
   setEduLevel(e.level);
   $('f-edu-school').value = e.school || '';
+  setReqError('f-edu-school', false);
   $('f-edu-degree').value = e.degree || '';
   monthPickers['f-edu-start'].set(e.start);
   monthPickers['f-edu-end'].set(e.end);
@@ -447,17 +447,21 @@ $('edu-save-btn').addEventListener('click', function () {
     current: current
   };
 
+  // название учебного заведения обязательно
+  if (!entry.school) {
+    setReqError('f-edu-school', true);
+    $('f-edu-school').focus();
+    return;
+  }
+
   // окончание не может быть раньше начала
   if (entry.start && entry.end && entry.end < entry.start) {
     monthPickers['f-edu-end'].setError(true);
     return;
   }
 
-  var empty = !entry.level && !entry.school && !entry.degree && !entry.start && !entry.end && !entry.current;
-  if (!empty) {
-    // новая запись — наверх списка, правка остаётся на своём месте
-    if (eduEditing === null) eduList.unshift(entry); else eduList[eduEditing] = entry;
-  }
+  // новая запись — наверх списка, правка остаётся на своём месте
+  if (eduEditing === null) eduList.unshift(entry); else eduList[eduEditing] = entry;
   closeEduModal();
   renderEduCards();
   renderResume();
@@ -502,6 +506,7 @@ function openJobModal(index) {
   jobEditing = index;
   var j = index === null ? {} : jobList[index];
   $('f-job-title').value = j.title || '';
+  setReqError('f-job-title', false);
   $('f-job-company').value = j.company || '';
   monthPickers['f-job-start'].set(j.start);
   monthPickers['f-job-end'].set(j.end);
@@ -536,17 +541,21 @@ $('job-save-btn').addEventListener('click', function () {
     desc: val('f-job-desc')
   };
 
+  // должность обязательна
+  if (!entry.title) {
+    setReqError('f-job-title', true);
+    $('f-job-title').focus();
+    return;
+  }
+
   // окончание не может быть раньше начала
   if (entry.start && entry.end && entry.end < entry.start) {
     monthPickers['f-job-end'].setError(true);
     return;
   }
 
-  var empty = !entry.title && !entry.company && !entry.start && !entry.end && !entry.current && !entry.desc;
-  if (!empty) {
-    // новая запись — наверх списка, правка остаётся на своём месте
-    if (jobEditing === null) jobList.unshift(entry); else jobList[jobEditing] = entry;
-  }
+  // новая запись — наверх списка, правка остаётся на своём месте
+  if (jobEditing === null) jobList.unshift(entry); else jobList[jobEditing] = entry;
   closeJobModal();
   renderJobCards();
   renderResume();
@@ -724,6 +733,24 @@ $('download-btn').addEventListener('click', function () {
     }
   });
 })();
+
+// ===== Обязательное поле =====
+function setReqError(inputId, show) {
+  var el = $(inputId);
+  el.classList.toggle('ring-2', show);
+  el.classList.toggle('ring-red-500', show);
+  $(inputId + '-err').classList.toggle('hidden', !show);
+}
+
+['f-edu-school', 'f-job-title'].forEach(function (id) {
+  $(id).addEventListener('input', function () { setReqError(id, false); });
+});
+
+// ===== Тема: светлая / тёмная =====
+$('theme-btn').addEventListener('click', function () {
+  var dark = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+});
 
 renderEduCards();
 renderJobCards();
