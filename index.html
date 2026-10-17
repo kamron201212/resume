@@ -18,7 +18,19 @@
       .pv-h { @apply text-xl font-semibold border-b border-gray-200 pb-2 mb-4; }
       .ico { @apply absolute left-3.5 top-1/2 -translate-y-1/2 text-black/45 pointer-events-none w-5 h-5; }
     }
+
+    .modal { opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s ease; }
+    .modal.open { opacity: 1; visibility: visible; }
+    .modal > div { transform: translateY(16px) scale(.96); transition: transform .25s ease; }
+    .modal.open > div { transform: none; }
+
+    .dd { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .3s ease, opacity .25s ease, visibility 0s linear .3s; }
+    .dd.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+    .dd > div { overflow: hidden; min-height: 0; }
+    @keyframes mpIn { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+    .mp-pop { animation: mpIn .15s ease-out; }
   </style>
+
 </head>
 
 <body class="min-h-screen font-serif">
@@ -28,22 +40,40 @@
 
       <!-- ТАБЫ -->
       <div class="flex overflow-hidden rounded-xl border border-gray-300 bg-white">
-        <button type="button" class="tablinks active" data-tab="tab-form" onclick="openTab(event, 'tab-form')">Форма</button>
-        <button type="button" class="tablinks" data-tab="tab-preview" onclick="openTab(event, 'tab-preview')">Превью</button>
+        <button type="button" class="tablinks active" data-tab="tab-form"
+          onclick="openTab(event, 'tab-form')">Форма</button>
+        <button type="button" class="tablinks" data-tab="tab-preview"
+          onclick="openTab(event, 'tab-preview')">Превью</button>
       </div>
 
       <!-- ВКЛАДКА: ФОРМА -->
       <div id="tab-form" class="tabcontent">
         <div class="flex flex-col rounded-[45px] bg-white p-6 sm:p-10 border border-gray-300 shadow-lg">
-          <div class="w-36 h-12 px-8 py-3.5 rounded-2xl bg-black/90 text-white flex items-center justify-center mb-6">
-            <h1 class="text-2xl font-bold">Резюме</h1>
-          </div>
 
           <form id="resume-form" class="w-full space-y-4" onsubmit="return false">
 
             <!-- Личная информация -->
             <div class="fbox">
               <h2 class="ftitle">Личная информация</h2>
+
+              <div class="flex items-center justify-center flex-col gap-4">
+                <label id="avatar-circle"
+                  class="h-24 w-24 shrink-0 cursor-pointer overflow-hidden rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition">
+                  <img id="avatar-img" class="hidden h-full w-full object-cover" alt="">
+                  <svg id="avatar-ph" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-10 h-10 text-black/45">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="button" id="avatar-pick"
+                    class="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium hover:bg-gray-200 transition">Загрузить фото</button>
+                  <button type="button" id="avatar-remove"
+                    class="hidden rounded-xl px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition">Удалить</button>
+                </div>
+                <input id="f-avatar" type="file" accept="image/*" class="hidden">
+              </div>
 
               <div class="relative">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -69,7 +99,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.125 1.125 0 0 0-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97a1.125 1.125 0 0 0 .417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                 </svg>
-                <input id="f-phone" type="tel" placeholder="Телефон" class="inp pl-11">
+                <input id="f-phone" type="tel" inputmode="numeric" placeholder="+998 90 123 45 67" class="inp pl-11">
               </div>
 
               <div class="relative">
@@ -78,7 +108,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.92V6.75" />
                 </svg>
-                <input id="f-email" type="email" placeholder="Email" class="inp pl-11">
+                <input id="f-email" type="text" inputmode="email" autocomplete="off" placeholder="name" class="inp pl-11 pr-32">
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-black/50 pointer-events-none">@gmail.com</span>
               </div>
 
               <div class="relative">
@@ -102,35 +133,35 @@
             <!-- Опыт работы -->
             <div class="fbox">
               <h2 class="ftitle">Опыт работы</h2>
-              <input id="f-job-title" type="text" placeholder="Должность" class="inp">
-              <input id="f-job-company" type="text" placeholder="Компания" class="inp">
-              <input id="f-job-period" type="text" placeholder="Период (например, 2021 – 2024)" class="inp">
-              <textarea id="f-job-desc" rows="4" placeholder="Обязанности и достижения..." class="area"></textarea>
+              <button class="w-full h-12 rounded-2xl border border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-800 hover:text-gray-900 text-start px-6 flex items-center gap-2 justify-between "type="button" id="add-job-btn">
+                Добавить <div>+</div>
+              </button>
+
+              <div id="job-cards" class="space-y-2"></div>
             </div>
 
             <!-- Образование -->
             <div class="fbox">
-              <h2 class="ftitle">Образование</h2>
-              <input id="f-edu-school" type="text" placeholder="Учебное заведение" class="inp">
-              <input id="f-edu-degree" type="text" placeholder="Специальность / степень" class="inp">
-              <input id="f-edu-period" type="text" placeholder="Период (например, 2017 – 2021)" class="inp">
+              <h2 class="ftitle">Где учились?</h2>
+              <button class="w-full h-12 rounded-2xl border border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-800 hover:text-gray-900 text-start px-6 flex items-center gap-2 justify-between "type="button" id="add-edu-btn">Добавить <div>+</div>
+              </button>
+              <div id="edu-cards" class="space-y-2"></div>
             </div>
+
 
             <!-- Навыки -->
             <!-- Контейнер для красивого отображения чипсов -->
-              <div class="fbox">
-                <h2 class="ftitle">Навыки</h2>
-                <!-- flex и gap-2 добавлены контейнеру, чтобы чипсы и инпут стояли в ряд -->
-                <div id="skills-container" class="inp flex flex-wrap items-center gap-2 h-auto min-h-[40px] py-[6px]">
-                  <div id="chips-wrapper" class="flex flex-wrap gap-2"></div>
-                  <input type="text" id="f-skills-input" placeholder="Введите навык и нажмите Enter"class="outline-none flex-1 min-w-[150px] bg-transparent">
-                </div>
-                <!-- Скрытый инпут для совместимости с функцией renderResume -->
-                <input type="hidden" id="f-skills">
+            <div class="fbox">
+              <h2 class="ftitle">Навыки</h2>
+              <!-- flex и gap-2 добавлены контейнеру, чтобы чипсы и инпут стояли в ряд -->
+              <div id="skills-container" class="inp flex flex-wrap items-center gap-2 h-auto min-h-[40px] py-[6px]">
+                <input type="text" id="f-skills-input" placeholder="Введите навык и нажмите Enter"
+                  class="outline-none flex-1 min-w-[150px] bg-transparent">
               </div>
-
-            <!-- Скрытое поле, чтобы не ломать твой старый код рендеринга -->
-            <input type="hidden" id="f-skills">
+              <div id="chips-wrapper" class="flex flex-wrap gap-2"></div>
+              <!-- Скрытый инпут для совместимости с функцией renderResume -->
+              <input type="hidden" id="f-skills">
+            </div>
 
             <button type="button" id="to-preview-btn" onclick="showTab('tab-preview')"
               class="w-full rounded-2xl bg-black/90 px-8 py-3.5 text-lg font-semibold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-200">
@@ -139,14 +170,15 @@
           </form>
         </div>
       </div>
-      
+
       <!-- ВКЛАДКА: ПРЕВЬЮ -->
       <div id="tab-preview" class="tabcontent hidden">
         <div class="flex items-center justify-between gap-3 mb-4">
           <h2 class="text-2xl sm:text-3xl font-bold text-black">Ваше резюме</h2>
           <div class="flex gap-2">
             <button type="button" id="download-btn"
-              class="rounded-lg bg-black px-4 py-2.5 font-medium text-white hover:bg-black/80 transition">Скачать PDF</button>
+              class="rounded-lg bg-black px-4 py-2.5 font-medium text-white hover:bg-black/80 transition">Скачать
+              PDF</button>
           </div>
         </div>
 
@@ -154,6 +186,7 @@
 
           <!-- Шапка -->
           <div class="text-center">
+            <img id="r-avatar" class="hidden mx-auto mb-4 h-28 w-28 rounded-full" alt="">
             <div id="r-name" class="text-3xl font-bold break-words">Ваше имя</div>
             <div id="r-position" class="text-gray-600 mt-1 break-words"></div>
             <div id="r-email" class="text-sm mt-2 break-words"></div>
@@ -184,6 +217,126 @@
 
     </div>
   </div>
+
+  <!-- МОДАЛКА: ОБРАЗОВАНИЕ -->
+  <div id="edu-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl space-y-3">
+      <h3 class="text-2xl font-bold">Где учились?</h3>
+
+      <div id="edu-level" class="relative">
+        <input type="hidden" id="f-edu-level" value="" class="">
+
+        <button type="button" id="edu-level-btn"class="relative w-full flex items-center justify-between rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-left transition duration-400 ">
+          <span>
+            <span class="block text-xs text-gray-500">Уровень образования</span>
+            <span id="edu-level-text" class="block text-base text-gray-400">Выберите</span>
+          </span>
+          <svg id="edu-level-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor" class="w-5 h-5 transition-transform">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+
+        <div id="edu-level-list" class="dd">
+          <div>
+            <div id="edu-level-items" class="mt-2 rounded-3xl border border-gray-200 bg-white p-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <input id="f-edu-school" type="text" placeholder="Учебное заведение" class="inp">
+      <input id="f-edu-degree" type="text" placeholder="Специальность / степень" class="inp">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <span class="block text-xs text-gray-500 mb-1">Начало учёбы</span>
+          <div class="mp" data-id="f-edu-start"></div>
+        </div>
+        <div>
+          <span class="block text-xs text-gray-500 mb-1">Окончание</span>
+          <div class="mp" data-id="f-edu-end" data-align="right"></div>
+        </div>
+      </div>
+      
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input id="f-edu-current" type="checkbox" class="h-4 w-4 accent-black"> Учусь сейчас
+      </label>
+
+      <div class="flex flex-wrap gap-2 pt-2">
+        <button type="button" id="edu-save-btn"
+          class="rounded-xl bg-black/90 px-5 py-3 font-semibold text-white hover:bg-black transition">Сохранить</button>
+        <button type="button" id="edu-cancel-btn"
+          class="rounded-xl bg-gray-100 px-5 py-3 font-semibold hover:bg-gray-200 transition">Отмена</button>
+        <button type="button" id="edu-delete-btn"
+          class="ml-auto rounded-xl px-4 py-3 font-semibold text-red-600 hover:bg-red-50 transition">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА: ОПЫТ РАБОТЫ -->
+  <div id="job-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl space-y-3">
+      <h3 class="text-2xl font-bold">Опыт работы</h3>
+  
+      <input id="f-job-title" type="text" placeholder="Должность" class="inp">
+      <input id="f-job-company" type="text" placeholder="Компания" class="inp">
+  
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <span class="block text-xs text-gray-500 mb-1">Начало работы</span>
+            <div class="mp" data-id="f-job-start"></div>
+          </div>
+          <div>
+            <span class="block text-xs text-gray-500 mb-1">Окончание</span>
+            <div class="mp" data-id="f-job-end" data-align="right"></div>
+          </div>
+        </div>
+  
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input id="f-job-current" type="checkbox" class="h-4 w-4 accent-black"> До сих пор работаю
+      </label>
+  
+      <textarea id="f-job-desc" rows="5" placeholder="Обязанности и достижения (каждая строка станет пунктом списка)..."
+        class="area"></textarea>
+  
+      <div class="flex flex-wrap gap-2 pt-2">
+        <button type="button" id="job-save-btn"
+          class="rounded-xl bg-black/90 px-5 py-3 font-semibold text-white hover:bg-black transition">Сохранить</button>
+        <button type="button" id="job-cancel-btn"
+          class="rounded-xl bg-gray-100 px-5 py-3 font-semibold hover:bg-gray-200 transition">Отмена</button>
+        <button type="button" id="job-delete-btn"
+          class="ml-auto rounded-xl px-4 py-3 font-semibold text-red-600 hover:bg-red-50 transition">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- МОДАЛКА: ОБРЕЗКА ФОТО -->
+    <div id="crop-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+      <div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl space-y-4">
+        <h3 class="text-2xl font-bold">Фото профиля</h3>
+        <p class="text-sm text-gray-500">Перетащи фото, чтобы выбрать нужную часть, и подгони размер ползунком.</p>
+    
+        <div id="crop-frame"
+          class="relative mx-auto aspect-square w-full max-w-[288px] overflow-hidden rounded-2xl bg-black touch-none cursor-grab active:cursor-grabbing select-none">
+          <img id="crop-img" alt="" draggable="false" class="absolute max-w-none select-none pointer-events-none">
+          <div class="pointer-events-none absolute inset-0 rounded-full" style="box-shadow: 0 0 0 999px rgba(0,0,0,.55);">
+          </div>
+        </div>
+    
+        <div class="flex items-center gap-3 text-lg text-gray-500">
+          <span>−</span>
+          <input id="crop-zoom" type="range" min="1" max="4" step="0.01" value="1" class="w-full accent-black">
+          <span>+</span>
+        </div>
+    
+        <div class="flex gap-2">
+          <button type="button" id="crop-ok-btn"
+            class="rounded-xl bg-black/90 px-5 py-3 font-semibold text-white hover:bg-black transition">Готово</button>
+          <button type="button" id="crop-cancel-btn"
+            class="rounded-xl bg-gray-100 px-5 py-3 font-semibold hover:bg-gray-200 transition">Отмена</button>
+        </div>
+      </div>
+    </div>
+
   <script src="/test.js"></script>
 </body>
 
